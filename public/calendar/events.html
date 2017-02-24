@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<link href='fullcalendar.css' rel='stylesheet' />
+<link href='fullcalendar.print.css' rel='stylesheet' media='print' />
+<link rel='stylesheet' href='//netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css'>
+
+<script src='lib/moment.min.js'></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src='fullcalendar.min.js'></script>
+<script>
+
+	$(document).ready(function() {
+		var today = new Date();
+		$('#calendar').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+			defaultDate: today,
+			editable: false,
+			eventLimit: true, // allow "more" link when too many events
+			events: {
+				url: 'php/get-events.php',
+				error: function() {
+					$('#script-warning').show();
+				}
+			},
+			eventClick: function(calEvent, jsEvent, view){
+				
+				var $slug =  calEvent.slug,
+					$url  = '../event/' + $slug;
+
+				$(this).css('border-color', 'red');
+				$.ajax({
+		            url: $url,
+		            type: 'GET'
+		        })
+		        .done(function( data ) {
+		        	$('#myModal').find("span.title").html($slug);
+		        	$('#myModal').find(".modal-body").html(data);
+      				$('#myModal').modal('show');      	
+		        });
+			},
+			loading: function(bool) {
+				$('#loading').toggle(bool);
+			}
+		});
+		
+	});
+
+</script>
+<style>
+
+	body {
+		margin: 0;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 14px;
+	}
+
+	#script-warning {
+		display: none;
+		background: #eee;
+		border-bottom: 1px solid #ddd;
+		padding: 0 10px;
+		line-height: 40px;
+		text-align: center;
+		font-weight: bold;
+		font-size: 12px;
+		color: red;
+	}
+
+	#loading {
+		display: none;
+		position: absolute;
+		top: 10px;
+		right: 10px;
+	}
+
+	#calendar {
+		max-width: 900px;
+		margin: 40px auto;
+		padding: 0 10px;
+	}
+
+	/*Bootstrap 3*/
+.large {
+     width: 80%;
+}
+
+.large hr{
+     width: 80%;
+     float:left;
+}
+
+.modal-container {
+     width: 95%;
+}
+
+.modal-container a:link, a:visited {
+    color: #fff;
+}
+
+.modal-container a.title:link, a.title:visited {
+    color: #5bc0de;
+}
+
+</style>
+</head>
+<body>
+
+	<div id='script-warning'>
+		<code>php/get-events.php</code> must be running.
+	</div>
+
+	<div id='loading'>loading...</div>
+
+	<div id='calendar'></div>
+
+	<div id='details'></div>
+
+<!-- Modal HTML -->
+    <div id="myModal" class="modal fade" >
+        <div class="modal-dialog large">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">
+                      <img src="images/logo.png">
+                      <span class="title label label-info">Info</span>                      
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>Do you want to save changes you made to document before closing?</p>
+                    <p class="text-warning"><small>If you don't save, your changes will be lost.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
